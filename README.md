@@ -1,0 +1,67 @@
+# Codex Resolve
+
+通过与 Codex 自然语言对话，在 DaVinci Resolve 21 中完成视频剪辑、修改与导出。
+
+**开发预览：0.1.0.dev0。当前是开源开发基线，尚不是完整的一键剪辑产品。此次移植与新增代码未运行测试，也未连接或修改 Resolve 工程。**
+
+## 使用目标
+
+你已安装 Codex 和 DaVinci Resolve Studio 21，将素材交给 Codex：
+
+> 把这些素材剪成 30 秒音乐高光，节奏强一些，保留完整转身动作。
+>
+> 中间太碎了，减少两次切镜，最后那个表情放大一点。
+>
+> 导出 4K，并保留可以继续修改的工程。
+
+用户表达创作意图；Codex 维护素材分析、剪辑计划、当前版本及执行记录。项目面向单机位、同步多机位、多场次混剪和音乐短片，按真实案例逐步扩展。人物保持真实，效果与审美随项目决定。
+
+## 当前具有什么
+
+| 内容 | 开发状态 |
+|---|---|
+| 媒体规格、精确抽帧、接触表、同步候选、音频特征、技术 QC | 从本地工具库提取；移植后未运行验证 |
+| 中文 ASR、给定歌词对齐、候选 SRT | 可选本地模型；移植后未运行验证 |
+| Fusion 运镜、持久化、慢放 helper | 显式对象接口；历史有限验证，移植后未运行验证 |
+| 项目初始化、状态查看、记录检查点 | 新增实现；未运行验证 |
+| Resolve 只读状态查询 | 新增官方脚本模块适配；未运行验证 |
+| 自然语言剪辑 Skill | 已编写，需在真实会话验证 |
+| 通用剪辑计划执行器、自动建片、增量修改、渲染编排 | 尚未实现 |
+| Motion / Design 接入 | 可选协作协议；不捆绑第三方 Skill |
+
+当前 Codex 可依据 Skill 编排已有工具，并在明确目标工程下使用可用的 Resolve 接口编写项目专用操作；仓库尚未提供经过验证的通用自动建片入口。详见 [能力边界](docs/CAPABILITIES.md)。
+
+## 安装与开始
+
+首发开发目标：Windows、Python 3.12、Codex、Resolve Studio 21。普通版及其他系统未验证。
+
+在仓库目录运行以下命令（这是安装说明，本次整理未执行这些命令）：
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\cr-media.exe doctor
+.\.venv\Scripts\codex-resolve.exe resolve-status
+```
+
+另外安装 FFmpeg，并将 `ffmpeg` 加入 PATH。Resolve 外部脚本配置见 [安装说明](docs/INSTALL.md)。依赖版本范围是候选范围，尚未生成经验证的锁定环境。
+
+将 `skills/resolve-edit` 复制到本机 Codex 可发现的 Skills 目录，重启或重新加载技能后调用 `$resolve-edit`。可以让 Codex 按当前版本的安装约定完成复制；无需覆盖已有同名技能。
+
+在 Codex 中说：
+
+> 使用 resolve-edit。项目新建在我指定的目录，素材位于……。目标 30 秒竖屏高光。先检查素材，自主制作初稿，然后根据我的反馈修改。不要覆盖原素材和旧版本。
+
+Codex 可使用 `codex-resolve init NEW_DIRECTORY --name "My edit"` 创建项目记录。项目所在目录已有其他文件时，选择新的子目录。详见 [工作流](docs/WORKFLOW.md)。
+
+## 项目结构
+
+```text
+skills/resolve-edit/   自然语言剪辑入口和按需参考
+src/focus_mv/         提取的媒体、同步、Fusion、歌词和 QC 工具
+src/codex_resolve/    新的项目状态与 Resolve 连接支持
+examples/            无个人素材的计划与配置示例
+docs/                架构、安装、能力、路线和来源
+```
+
+代码采用 [MIT License](LICENSE)；第三方软件、模型、Skills 和媒体不随仓库分发。来源见 [SOURCE_PROVENANCE.md](docs/SOURCE_PROVENANCE.md)，第三方边界见 [THIRD_PARTY.md](THIRD_PARTY.md)。

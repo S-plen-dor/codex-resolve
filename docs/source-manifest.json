@@ -1,0 +1,77 @@
+{
+  "recorded_date": "2026-11-04",
+  "origin": "User local Focus MV Toolkit 0.2.0",
+  "validation": "not_run",
+  "files": [
+    {
+      "source": "focus_mv/__init__.py",
+      "destination": "src/focus_mv/__init__.py",
+      "source_hash": "fca68020014f0292113399d87fa72faa0fd2151bc686beb218806765ddcf0984",
+      "import_hash": "fe70bf62e76acdfe2f57e7e9006fdf596a901c346838af82c2d30a4500dbb8ce",
+      "modified": true
+    },
+    {
+      "source": "focus_mv/cli.py",
+      "destination": "src/focus_mv/cli.py",
+      "source_hash": "c44edf0c651ea09da14db48eacc54ea1884b85320a4f0b2674bc6e06403f0345",
+      "import_hash": "c44edf0c651ea09da14db48eacc54ea1884b85320a4f0b2674bc6e06403f0345",
+      "modified": false
+    },
+    {
+      "source": "focus_mv/common.py",
+      "destination": "src/focus_mv/common.py",
+      "source_hash": "fd406740634a5e65fb1cec52514678bc0bf5c29e18ec232a69e24c1cc2c632a8",
+      "import_hash": "d5435268f5b8e5283b19be0f60e96ada029935c4ee113f81720fe7d5abdeabd2",
+      "modified": true
+    },
+    {
+      "source": "focus_mv/fusion.py",
+      "destination": "src/focus_mv/fusion.py",
+      "source_hash": "20cc7ddb644fc580232bd860eb945b784456918972734868d8679f28d6e50cee",
+      "import_hash": "20cc7ddb644fc580232bd860eb945b784456918972734868d8679f28d6e50cee",
+      "modified": false
+    },
+    {
+      "source": "focus_mv/lyrics.py",
+      "destination": "src/focus_mv/lyrics.py",
+      "source_hash": "0c8c1c20a1359087f4d73534377a18532efd54071b3cf2d4126fd79f109ac890",
+      "import_hash": "fad708e7e72ef192f0f01d0c8f5d967cb55037b46a618c6c613926b9771620b1",
+      "modified": true
+    },
+    {
+      "source": "focus_mv/media.py",
+      "destination": "src/focus_mv/media.py",
+      "source_hash": "ce3cb7c20034909d247bf4cd8e354eddadbad77dda2d6ffc59fe7906c614edbf",
+      "import_hash": "ce3cb7c20034909d247bf4cd8e354eddadbad77dda2d6ffc59fe7906c614edbf",
+      "modified": false
+    },
+    {
+      "source": "focus_mv/qc.py",
+      "destination": "src/focus_mv/qc.py",
+      "source_hash": "2affdb65ec48a9a1cd861ba8a51990c9c304dd218d470f46a59815870cb8ed01",
+      "import_hash": "2affdb65ec48a9a1cd861ba8a51990c9c304dd218d470f46a59815870cb8ed01",
+      "modified": false
+    },
+    {
+      "source": "focus_mv/retime.py",
+      "destination": "src/focus_mv/retime.py",
+      "source_hash": "d4693d8d661fdea11ceac466843f0aec471a40d4b6966957d1c0f6164f2a1cb9",
+      "import_hash": "d4693d8d661fdea11ceac466843f0aec471a40d4b6966957d1c0f6164f2a1cb9",
+      "modified": false
+    },
+    {
+      "source": "focus_mv/retime_qc.py",
+      "destination": "src/focus_mv/retime_qc.py",
+      "source_hash": "0c214da709d29079124c5dbc136970e77274a91681cf3818586f962ef9b4771d",
+      "import_hash": "0c214da709d29079124c5dbc136970e77274a91681cf3818586f962ef9b4771d",
+      "modified": false
+    },
+    {
+      "source": "focus_mv/sync.py",
+      "destination": "src/focus_mv/sync.py",
+      "source_hash": "c2faccf6b289962ddd3927d904a85158b3d0762a8b38be4df1155e246f23ff36",
+      "import_hash": "c2faccf6b289962ddd3927d904a85158b3d0762a8b38be4df1155e246f23ff36",
+      "modified": false
+    }
+  ]
+}

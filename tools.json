@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "version": "0.1.0.dev0",
+  "validation": "not_run",
+  "media_entry": "cr-media",
+  "workflow_entry": "codex-resolve",
+  "tools": [
+    {
+      "id": "environment.doctor",
+      "command": "doctor [--asr]",
+      "purpose": "检查 Python 和依赖实际导入",
+      "writes": "可选的新 JSON",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "cache.check",
+      "command": "cache-check REPORT [--inputs A B]",
+      "purpose": "验证已有报告、内容身份和产物是否可复用",
+      "writes": "可选的新 JSON",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "media.probe",
+      "command": "probe INPUT [--packets] --out REPORT",
+      "purpose": "媒体规格、包时间戳统计",
+      "writes": "新 JSON",
+      "limits": "容器信息和包统计不等于完整解码或画面方向验收",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "media.frames",
+      "command": "frames INPUT --indices 0,60,120 --out-dir NEW_DIR",
+      "purpose": "指定零起点解码帧、缩略图和接触表",
+      "writes": "新目录、图片及 manifest",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "media.paired_frames",
+      "command": "paired-frames A B --a-indices 600,601 --offset-frames OFFSET --out-dir NEW_DIR",
+      "purpose": "双机位同步候选的精确帧对照图",
+      "writes": "新目录、图片及 manifest",
+      "limits": "同帧率且时间戳连续；B=A-offset；候选仍需视觉复核",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "media.cover",
+      "command": "cover INPUT --frame INDEX --out NEW_PNG",
+      "purpose": "原显示尺寸截图与源帧记录",
+      "writes": "新图片及旁车 JSON",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "sync.audio",
+      "command": "sync A B [--prior SECONDS] --out REPORT",
+      "purpose": "双频带多窗口音频同步候选",
+      "writes": "新 JSON",
+      "limits": "不是视觉同步保证；重复音乐、现场延迟与漂移需复核",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "analysis.audio_features",
+      "command": "features INPUT [--seconds 2] --out REPORT",
+      "purpose": "RMS、频带、正谱通量",
+      "writes": "新 JSON",
+      "limits": "不是 LUFS、确认拍点、乐器或情绪标签",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "qc.decode",
+      "command": "qc INPUT [--frames N --size WxH --fps NUM/DEN] --out REPORT",
+      "purpose": "完整视频/音频解码、规格与黑场候选",
+      "writes": "新 JSON",
+      "limits": "第一视频流及全部音频流；不替代人物构图、光流、口型及连续视听验收",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "qc.audio_waveform",
+      "command": "audio-check A B --mode waveform --out REPORT",
+      "purpose": "共同音频区间偏移、相关、增益与时长差",
+      "writes": "新 JSON",
+      "limits": "16k单声道；非完整立体声混音一致性证明",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "qc.audio_packets",
+      "command": "audio-check A B --mode packets --out REPORT",
+      "purpose": "第一音轨压缩包及时间戳一致性",
+      "writes": "新 JSON",
+      "limits": "适合音频复制封装；重新编码通常不同",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "fusion.camera_persist",
+      "python_api": "focus_mv.fusion.require_target / animate / camera / persist",
+      "purpose": "原生关键帧缩放与合成导出重导",
+      "writes": "已授权镜头合成、新 .comp；保存/渲染由调用方显式处理",
+      "limits": "测试为360x640/59.94缩放；只接受未处理合成链；任意旋转/中心动画、4K、复杂光流需另测",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "lyrics.transcribe",
+      "command": "asr INPUT --start SEC --end SEC --out REPORT",
+      "purpose": "本地中文歌唱识别候选",
+      "writes": "新JSON",
+      "limits": "每段<=120秒；可能错字，需复核；本地CPU-int8模型，无下载",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "lyrics.align",
+      "command": "lyrics-align INPUT --lyrics WINDOWS_JSON --out REPORT",
+      "purpose": "给定中文歌词的窗口化声学对齐候选",
+      "writes": "新JSON",
+      "limits": "每窗<=28秒；中文汉字与标点；给定文本被对齐不等于歌词识别正确；窗口贴边、低置信度需复核",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "lyrics.export",
+      "command": "lyrics-export ALIGNMENT_JSON --out-dir NEW_DIR",
+      "purpose": "按有理帧率导出候选SRT和帧边界",
+      "writes": "新目录、SRT、manifest",
+      "limits": "仍为候选；不是已验收字幕或Text+工程；缓存继承上游音频/模型身份",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "retime.plan",
+      "command": "retime-plan --frames N --speed 0.8 --method speedwarp|flow --source-start FRAME --out REPORT",
+      "purpose": "恒速或平滑渐慢的源映射和曲线",
+      "writes": "新JSON，不操作Resolve",
+      "limits": "0<speed<=1；不选出口、不移动后续镜头、不改变主音轨",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "retime.apply",
+      "python_api": "focus_mv.retime.apply(comp, plan)",
+      "purpose": "原生SpeedWarp Faster或OpticalFlow→TimeStretcher慢放",
+      "writes": "已授权的未处理合成；保存/渲染由调用方显式执行",
+      "limits": "仅小尺寸合成素材80%/渐慢实际验证；必须匹配镜头时长和源起点；非真人4K光流验收",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "retime.check",
+      "command": "retime-check SOURCE RENDER --plan PLAN --out REPORT",
+      "purpose": "渲染画面的预期源邻帧抽样核对",
+      "writes": "新JSON",
+      "limits": "相同几何与帧率；静止或重复画面会误导；不是光流质量/顺滑性保证",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "retime.cache_match",
+      "command": "cache-match CACHE RENDER --frames N [--render-start FRAME] --out REPORT",
+      "purpose": "慢放缓存和成片区间逐帧缩图对照",
+      "writes": "新JSON",
+      "limits": "270x480比较；支持几何与画面一致性，不是原生4K像素相同证明",
+      "status": "implemented_unverified_port"
+    },
+    {
+      "id": "project.init",
+      "command": "init DIRECTORY --name NAME",
+      "entry": "codex-resolve",
+      "purpose": "Create project records in a new directory",
+      "status": "implemented_unverified"
+    },
+    {
+      "id": "project.status",
+      "command": "project-status DIRECTORY",
+      "entry": "codex-resolve",
+      "purpose": "Read project records",
+      "status": "implemented_unverified"
+    },
+    {
+      "id": "project.checkpoint",
+      "command": "checkpoint DIRECTORY --label LABEL",
+      "entry": "codex-resolve",
+      "purpose": "Snapshot project records, not Resolve",
+      "status": "implemented_unverified"
+    },
+    {
+      "id": "resolve.status",
+      "command": "resolve-status",
+      "entry": "codex-resolve",
+      "purpose": "Read current Resolve state",
+      "status": "implemented_unverified"
+    }
+  ],
+  "planned": [
+    "plan.validate",
+    "plan.apply",
+    "edit.incremental",
+    "render.submit",
+    "render.monitor"
+  ]
+}

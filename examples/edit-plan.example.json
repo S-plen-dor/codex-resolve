@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "status": "protocol_draft_not_executable",
+  "revision": "v001",
+  "timeline": {"fps": "30000/1001", "width": 1080, "height": 1920},
+  "sources": [{"id": "camera-a", "path": "media/source.mp4", "fps": "30000/1001", "sha256": null}],
+  "shots": [
+    {
+      "id": "shot-001",
+      "source_id": "camera-a",
+      "source_range": [300, 600],
+      "timeline_range": [0, 300],
+      "reason": "Preserve the complete action; example only",
+      "effects": []
+    }
+  ],
+  "audio": {"strategy": "continuous_master", "source_id": "camera-a", "source_range": [300, 600]},
+  "notes": "Draft contract for future executor. User does not need to write this file."
+}

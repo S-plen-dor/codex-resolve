@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "codex-resolve"
+version = "0.1.0.dev0"
+description = "Natural-language video editing with Codex and DaVinci Resolve"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = ["numpy>=1.26,<3", "scipy>=1.12,<2", "Pillow>=10,<14", "av>=12,<20", "opencv-python-headless>=4.9,<6"]
+classifiers = ["Development Status :: 2 - Pre-Alpha", "Programming Language :: Python :: 3", "Operating System :: Microsoft :: Windows"]
+
+[project.optional-dependencies]
+asr = ["faster-whisper>=1,<2"]
+
+[project.scripts]
+codex-resolve = "codex_resolve.cli:main"
+cr-media = "focus_mv.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
