@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "status": "protocol_draft_not_executable",
+  "status": "example_requires_user_media",
+  "project_root": "..",
   "revision": "v001",
   "timeline": {"fps": "30000/1001", "width": 1080, "height": 1920},
   "sources": [{"id": "camera-a", "path": "media/source.mp4", "fps": "30000/1001", "sha256": null}],
@@ -14,6 +15,6 @@
       "effects": []
     }
   ],
-  "audio": {"strategy": "continuous_master", "source_id": "camera-a", "source_range": [300, 600]},
-  "notes": "Draft contract for future executor. User does not need to write this file."
+  "audio": [{"id": "audio-001", "source_id": "camera-a", "source_range": [300, 600], "timeline_range": [0, 300], "track": 1, "layout": "stereo"}],
+  "notes": "Paths relative to project_root resolved from plan directory. Supply real media. Agent maintains this file."
 }

@@ -16,10 +16,16 @@
 | focus_mv.fusion / retime.apply | 已移植 | 显式 Resolve 对象、未处理合成；不自动建项目 |
 | init / project-status / checkpoint | 新增 | 仅项目记录管理，非 Resolve 回滚 |
 | resolve-status | 新增 | 只读连接，无应用启动或写入 |
-| 通用 plan apply / incremental edit / render | 未实现 | 后续核心工作 |
+| observe | 新增，未运行验证 | 帧索引抽样、名义时间索引、可选60秒以内短片；不做语义识别 |
+| plan-validate / plan-diff | 新增，未运行验证 | 结构、路径、可选哈希与 ID 差异；不是执行或审美验收 |
+| plan-apply | 新增，未运行验证 | 原速同帧率视频源、多轨、静态构图；新时间线、显式保存和DRP备份 |
+| render-submit / render-status | 新增，未运行验证 | 已有预设、单文件排队/启动、状态查询；不验证实际输出 |
+| 原地增量修改 / 自动审片循环 | 未实现 | 目前通过新计划和新工作时间线迭代 |
 | 自动追踪、人物分割、跨场次匹配 | 未迁入 | 不因历史项目有脚本就声称通用支持 |
 | Huashu Motion / Design | 协议与指导 | 用户自选、自行安装；未做本仓库联调 |
 
 源码导入不触发 Resolve 操作。CLI 调用可能写入用户明确指定的新路径。媒体命令退出码沿用 0 成功、1 执行错误、2 检查未通过；项目 CLI 为 0 成功、1 错误。
 
 查函数时按需阅读对应模块或运行 `cr-media --help` / `cr-media COMMAND --help`。本次未执行 help、doctor、安装或集成测试。
+
+新命令的副作用、协议与限制见 [CREATIVE_LOOP.md](CREATIVE_LOOP.md)。plan-apply 会保存当前工程、导出备份、导入素材和新建工作时间线；render-submit 会改变交付设置并排队，只有 --start 才启动渲染。普通版、跨系统、异帧率、独立音频源、动态效果及人物光流不在新执行器支持范围内。这些是当前适配器边界，不是创作规则。

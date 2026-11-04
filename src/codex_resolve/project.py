@@ -31,6 +31,10 @@ def initialize(root, name):
         "# Project handoff\n\nRead project.json and state.json first.\n"
         "Record the latest user request, accepted decisions, current timeline, "
         "preview path, unresolved issues and next action here.\n", encoding="utf-8")
+    (root / "creative-brief.md").write_text(
+        "# Creative brief\n\n## User intent\n\n## References and their relevance\n\n"
+        "## Current creative decisions (revisable)\n\n## Open creative questions\n\n"
+        "No global house style. Record only this project's intent and decisions.\n", encoding="utf-8")
     return {"project_root": str(root), "created": True}
 
 

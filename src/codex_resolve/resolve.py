@@ -1,4 +1,4 @@
-"""Read-only connection adapter using the user's installed Resolve API module."""
+"""Connection and read-only queries using the user's installed Resolve API module."""
 import importlib
 import os
 import sys

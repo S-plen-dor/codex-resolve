@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.0.dev0",
+  "version": "0.1.0.dev1",
   "validation": "not_run",
   "media_entry": "cr-media",
   "workflow_entry": "codex-resolve",
@@ -180,13 +180,61 @@
       "entry": "codex-resolve",
       "purpose": "Read current Resolve state",
       "status": "implemented_unverified"
+    },
+    {
+      "id": "observation.pack",
+      "command": "observe SOURCE --out NEW_DIR [--start FRAME --end FRAME --interval SECONDS --clip]",
+      "entry": "codex-resolve",
+      "purpose": "Actual frame evidence and optional continuous candidate clip",
+      "status": "implemented_unverified",
+      "detail": "docs/CREATIVE_LOOP.md"
+    },
+    {
+      "id": "plan.validate",
+      "command": "plan-validate PLAN",
+      "entry": "codex-resolve",
+      "purpose": "Structure, files and optional source hash checks",
+      "status": "implemented_unverified",
+      "detail": "docs/CREATIVE_LOOP.md"
+    },
+    {
+      "id": "plan.diff",
+      "command": "plan-diff BEFORE AFTER",
+      "entry": "codex-resolve",
+      "purpose": "Compare stable clip IDs and project inputs",
+      "status": "implemented_unverified",
+      "detail": "docs/CREATIVE_LOOP.md"
+    },
+    {
+      "id": "plan.apply",
+      "command": "plan-apply PLAN --project NAME --timeline NEW_NAME --out NEW_DIR --save-current",
+      "entry": "codex-resolve",
+      "purpose": "Save/backup current project and build a new native-speed timeline",
+      "status": "implemented_unverified",
+      "detail": "docs/CREATIVE_LOOP.md"
+    },
+    {
+      "id": "render.submit",
+      "command": "render-submit OPERATION --out NEW_DIR --preset NAME [--start]",
+      "entry": "codex-resolve",
+      "purpose": "Queue or explicitly start one preset-based preview",
+      "status": "implemented_unverified",
+      "detail": "docs/CREATIVE_LOOP.md"
+    },
+    {
+      "id": "render.status",
+      "command": "render-status RECORD",
+      "entry": "codex-resolve",
+      "purpose": "Read recorded render job status without waiting",
+      "status": "implemented_unverified",
+      "detail": "docs/CREATIVE_LOOP.md"
     }
   ],
   "planned": [
-    "plan.validate",
-    "plan.apply",
     "edit.incremental",
-    "render.submit",
-    "render.monitor"
+    "execution.resume",
+    "review.automatic",
+    "source.mixed_rates",
+    "effects.plan_adapter"
   ]
 }

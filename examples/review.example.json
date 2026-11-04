@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "plan_revision": "v001",
+  "render_record": "renders/preview-v001/render.json",
+  "review_status": "not_reviewed",
+  "observed_artifacts": [],
+  "observation_scope": "Fill with actual frames/time ranges and tools used; do not infer continuous viewing",
+  "findings": [
+    {
+      "clip_id": "shot-001",
+      "timeline_range": [0, 300],
+      "kind": "creative_question",
+      "observation": "Example only: is this hold consistent with the current intent?",
+      "evidence": null,
+      "proposed_change": null,
+      "status": "example_not_a_finding"
+    }
+  ],
+  "user_feedback": [],
+  "next_action": null
+}
