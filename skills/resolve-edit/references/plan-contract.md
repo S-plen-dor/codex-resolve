@@ -1,6 +1,6 @@
 # Plan and production contract
 
-This contract applies only when choosing this package's plan-based executor. Direct API calls, other tools and project-specific scripts do not need to follow this file format or command sequence. When used, Codex can maintain the files for the user. All shipped adapters are unverified development code; examples are optional.
+This contract applies only when choosing this package's plan-based executor. Direct API calls, other tools and project-specific scripts do not need to follow this file format or command sequence. When used, Codex can maintain the files for the user. All shipped adapters are unverified first-release code; examples are optional.
 
 ## Plan
 

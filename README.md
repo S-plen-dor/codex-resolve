@@ -2,7 +2,9 @@
 
 通过与 Codex 自然语言对话，在 DaVinci Resolve 21 中完成视频剪辑、修改与导出。
 
-**开发预览：0.1.0.dev3。首版核心接口链路已编写，尚不是经过验证的一键剪辑产品。此次移植与新增代码未运行测试，也未连接或修改 Resolve 工程。完整使用路径见 [自然语言制作流程](docs/END_TO_END.md)。**
+**首个正式发布版本：v0.1.0。面向已安装Codex与DaVinci Resolve Studio 21的用户。此次移植与新增代码未运行测试，也未连接或修改Resolve工程；发布不代表稳定性验证通过。完整使用路径见 [自然语言制作流程](docs/END_TO_END.md)。**
+
+下载：[GitHub Release](https://github.com/S-plen-dor/codex-resolve/releases/tag/v0.1.0) · [本版说明](docs/releases/v0.1.0.md)
 
 ## 使用目标
 
