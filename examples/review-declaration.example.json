@@ -1,0 +1,7 @@
+{
+  "status": "changes_requested",
+  "scope": "REPLACE: actual observed frames/time ranges or original user feedback; do not claim viewing without evidence",
+  "observed_artifacts": [],
+  "user_feedback": ["REPLACE_WITH_ORIGINAL_USER_FEEDBACK"],
+  "findings": []
+}

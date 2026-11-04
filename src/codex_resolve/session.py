@@ -41,7 +41,20 @@ def handoff(root, state):
     os.replace(temp, root/'HANDOFF.auto.md')
 
 
+def reset_preview(state):
+    for key in ('current_collection', 'current_preview', 'current_review'):
+        state[key] = None
+    for key in ('review_declaration', 'review_timeline_range', 'current_preview_range', 'technical_qc'):
+        state.pop(key, None)
+
+
 def update(root, command, args, result, error=None):
+    if command == 'produce' and not error:
+        from types import SimpleNamespace
+        if result.get('revision_result'):
+            update(root, 'plan-revise', SimpleNamespace(), result['revision_result'])
+        update(root, 'plan-apply', SimpleNamespace(plan=result['plan']), result['build'])
+        update(root, 'render-submit', SimpleNamespace(), result['render'])
     state = inspect(root)['state.json']
     stamp = datetime.now(timezone.utc).isoformat()
     event_id = uuid.uuid4().hex
@@ -57,6 +70,10 @@ def update(root, command, args, result, error=None):
             state['failed_operation'] = reference(root, Path(args.out)/'operation.json')
         elif command == 'render-submit':
             state['failed_render'] = reference(root, Path(args.out)/'render.json')
+        elif command == 'produce':
+            state['failed_workflow'] = reference(root, Path(args.out)/'workflow.json')
+        elif command == 'render-collect':
+            state['failed_collection'] = reference(root, Path(args.out)/'collection.json')
     else:
         state['last_error'] = None
         if command == 'observe':
@@ -80,6 +97,7 @@ def update(root, command, args, result, error=None):
                 state['current_timeline'] = None
                 state['current_timeline_id'] = None
                 state['current_preview_matches_plan'] = False
+                reset_preview(state)
                 state['plan_needs_build'] = True
                 state['next_action'] = 'Inspect plan changes, then build a new work timeline when authorized'
             if command == 'plan-revise':
@@ -91,6 +109,7 @@ def update(root, command, args, result, error=None):
                     state['previous_'+field] = state['current_'+field]
             state['current_render'] = None
             state['latest_render_matches_plan'] = False
+            reset_preview(state)
             state.update(current_plan=reference(root, args.plan), plan_sha256=result['plan_sha256'],
                          plan_revision=result['revision'],
                          current_operation=reference(root, result['operation']),
@@ -107,6 +126,7 @@ def update(root, command, args, result, error=None):
                 state['current_render'] = reference(root, result['record'])
                 state['stage'] = result['status']
                 state['current_preview_matches_plan'] = False
+                reset_preview(state)
                 state['next_action'] = 'Query the recorded job; then locate and inspect actual output'
         elif command == 'render-status':
             state['last_render_status'] = result
@@ -122,6 +142,34 @@ def update(root, command, args, result, error=None):
                 elif normalized in ('rendering', 'in progress'):
                     state['stage'] = 'rendering'
                 state['next_action'] = 'Inspect reported task state; a completed job still needs actual output review'
+        elif command == 'produce':
+            state['current_workflow'] = reference(root, result['workflow'])
+        elif command == 'render-collect':
+            state['latest_collection'] = reference(root, result['collection'])
+            if (reference(root, result['render_record']) == state.get('current_render')
+                    and result['plan_sha256'] == state.get('plan_sha256')):
+                reset_preview(state)
+                state['current_collection'] = state['latest_collection']
+                state['current_preview'] = reference(root, result['media'])
+                state['current_preview_range'] = result['timeline_range']
+                state['current_preview_matches_plan'] = True
+                state['current_review'] = None
+                state['stage'] = 'collected_not_reviewed'
+                state['technical_qc'] = result['qc']
+                if isinstance(result['qc'], dict) and result['qc'].get('passed') is False:
+                    state['stage'] = 'technical_qc_failed'
+                state['next_action'] = 'Open actual preview and record review scope or explicit skipped status'
+        elif command == 'review-record':
+            state['latest_review'] = reference(root, result['review_record'])
+            if (reference(root, result['render_record']) == state.get('current_render')
+                    and result['plan_sha256'] == state.get('plan_sha256')):
+                state['current_review'] = state['latest_review']
+                state['review_declaration'] = result['declaration']
+                state['review_timeline_range'] = result['timeline_range']
+                state['stage'] = 'review_declared_'+result['declaration']['status']
+                state['next_action'] = ('Interpret feedback and revise a new plan' if
+                    result['declaration']['status'] == 'changes_requested' else
+                    'Deliver or continue according to the declared review scope and current user request')
     history = root/'history'
     history.mkdir(exist_ok=True)
     # Durable event includes resulting state so interrupted state/handoff writes can be reconstructed.
@@ -169,7 +217,8 @@ def resume(directory):
     root = root_path(directory)
     state = inspect(root)['state.json']
     missing = []
-    for field in ('current_plan', 'current_operation', 'current_render', 'latest_observation'):
+    for field in ('current_plan', 'current_operation', 'current_render', 'latest_observation',
+                  'current_collection', 'current_preview', 'current_review', 'current_workflow'):
         value = state.get(field)
         if value and not (root/value).is_file():
             missing.append({'field': field, 'path': value})

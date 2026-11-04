@@ -51,17 +51,20 @@ def read_settings(timeline):
 
 
 def timeline_fingerprint(timeline):
-    """Detect basic manual edits before rendering; not a Fusion/color graph audit."""
+    """Detect geometry/audio changes before rendering; not a full Fusion/color audit."""
     rows = []
     for kind in ('video', 'audio'):
         for index in range(1, timeline.GetTrackCount(kind)+1):
             rows.append({'track': [kind, index], 'enabled': timeline.GetIsTrackEnabled(kind, index)})
             for item in timeline.GetItemListInTrack(kind, index) or []:
                 source = item.GetMediaPoolItem()
+                get_props = getattr(item, 'GetProperties', None)
+                props = get_props() if callable(get_props) else item.GetProperty()
                 rows.append({'id': item.GetUniqueId(), 'track': [kind, index],
                              'start': item.GetStart(), 'duration': item.GetDuration(),
                              'source_start': item.GetSourceStartFrame(),
-                             'source': source.GetUniqueId() if source else None})
+                             'source': source.GetUniqueId() if source else None,
+                             'properties': props, 'fusion_count': item.GetFusionCompCount()})
     spec = {'settings': read_settings(timeline), 'items': rows}
     return hashlib.sha256(json.dumps(spec, sort_keys=True, default=str).encode()).hexdigest()
 
@@ -75,17 +78,23 @@ def apply(path, project_name, timeline_name, output, save_current=False):
     for source in plan['sources'].values():
         info = probe(source['absolute_path'])
         video = next((s for s in info['streams'] if s['type'] == 'video'), None)
-        require(video is not None, 'First executor requires video-backed sources, including audio clips')
-        require(Fraction(video['average_rate']) == Fraction(source['fps']), 'Declared source rate differs from media')
-        timing = packets(source['absolute_path'])
-        require(not timing['missing_pts'] and not timing['duplicate_pts'] and
-                len(timing['sorted_pts_step_histogram']) == 1, 'VFR or irregular timestamps need another adapter')
+        used_video = any(r['source_id'] == source['id'] for r in plan['data']['shots'])
+        if used_video:
+            require(video is not None, 'Video shot points to a source with no video')
+            require(Fraction(video['average_rate']) == Fraction(source['fps']), 'Declared source rate differs from media')
+            timing = packets(source['absolute_path'])
+            require(not timing['missing_pts'] and not timing['duplicate_pts'] and
+                    len(timing['sorted_pts_step_histogram']) == 1, 'VFR or irregular timestamps need another adapter')
         for row in plan['data']['shots'] + plan['data'].get('audio', []):
             if row['source_id'] == source['id']:
-                if video['reported_frames']:
+                if row in plan['data']['shots'] and video['reported_frames']:
                     require(row['source_range'][1] <= video['reported_frames'], 'Source range exceeds reported frames')
                 if row in plan['data'].get('audio', []):
-                    require(any(s['type'] == 'audio' for s in info['streams']), 'Requested audio source has no audio')
+                    sound = next((s for s in info['streams'] if s['type'] == 'audio'), None)
+                    require(sound, 'Requested audio source has no audio')
+                    if sound['duration_seconds'] is not None:
+                        require(row['source_range'][1]/Fraction(source['fps']) <= sound['duration_seconds']+2/48000,
+                                'Audio range exceeds source duration')
     out = Path(output).expanduser().resolve()
     if out.exists():
         raise ValueError('Operation directory already exists; inspect its journal before retrying')
@@ -135,6 +144,17 @@ def apply(path, project_name, timeline_name, output, save_current=False):
             require(imported and len(imported) == 1, 'Cannot uniquely import '+key)
             media[key] = imported[0]
         audio = plan['data'].get('audio', [])
+        # Clip-local PCM makes audio-only sources, gains and fades independent of inspector APIs.
+        audio_media = {}
+        if audio:
+            from .effects import prepare_audio
+            (out/'audio').mkdir()
+            for index, row in enumerate(audio):
+                asset = prepare_audio(plan['sources'][row['source_id']]['absolute_path'], row,
+                                      settings['fps'], out/'audio'/f'{index:05d}.wav')
+                imported = pool.ImportMedia([asset])
+                require(imported and len(imported) == 1, 'Cannot import prepared audio')
+                audio_media[row['id']] = imported[0]
         # Empty timelines may contain default mono tracks. Replace only empty defaults in this new timeline.
         for index in range(timeline.GetTrackCount('audio'), 0, -1):
             require(not timeline.GetItemListInTrack('audio', index), 'New timeline has unexpected audio')
@@ -151,8 +171,10 @@ def apply(path, project_name, timeline_name, output, save_current=False):
             for row in sorted(rows, key=lambda r: (r.get('track', 1), r['timeline_range'][0])):
                 a, b = row['source_range']
                 c, d = row['timeline_range']
-                items = pool.AppendToTimeline([{'mediaPoolItem': media[row['source_id']],
-                    'startFrame': a, 'endFrame': b-1, 'recordFrame': base+c,
+                imported_source = media[row['source_id']] if kind == 1 else audio_media[row['id']]
+                insert_start, insert_end = (a, b) if kind == 1 else (0, d-c)
+                items = pool.AppendToTimeline([{'mediaPoolItem': imported_source,
+                    'startFrame': insert_start, 'endFrame': insert_end-1, 'recordFrame': base+c,
                     'trackIndex': row.get('track', 1), 'mediaType': kind}])
                 require(items and len(items) == 1, 'Cannot insert '+row['id'])
                 item = items[0]
@@ -163,9 +185,9 @@ def apply(path, project_name, timeline_name, output, save_current=False):
                 save_record(journal, record)
                 require(abs(result['start']-(base+c)) < .001 and abs(result['duration']-(d-c)) < .001,
                         'Actual insertion range differs: '+row['id'])
-                require(item.GetMediaPoolItem().GetUniqueId() == media[row['source_id']].GetUniqueId(),
+                require(item.GetMediaPoolItem().GetUniqueId() == imported_source.GetUniqueId(),
                         'Source binding differs: '+row['id'])
-                require(item.GetSourceStartFrame() == a, 'Source offset differs: '+row['id'])
+                require(item.GetSourceStartFrame() == insert_start, 'Source offset differs: '+row['id'])
                 props = row.get('properties', {})
                 if props:
                     modern = getattr(item, 'SetProperties', None)
@@ -173,7 +195,16 @@ def apply(path, project_name, timeline_name, output, save_current=False):
                     read = getattr(item, 'GetProperties', None)
                     values = read() if callable(read) else item.GetProperty()
                     require(all(abs(float(values[k])-v) < .001 for k, v in props.items()), 'Clip properties differ')
+                if kind == 1 and (row.get('effects') or row.get('retime')):
+                    from .effects import apply as apply_effects
+                    effect_path = out/'fusion'/f'{len(record["clips"]):05d}.comp'
+                    result['composition'] = apply_effects(item, row, settings['fps'], effect_path)
+                    save_record(journal, record)
         require(manager.SaveProject(), 'Cannot save work timeline')
+        editable = out/'editable.drp'
+        require(manager.ExportProject(project_name, str(editable)), 'Cannot export editable project')
+        require(editable.is_file() and editable.stat().st_size, 'Editable project export is missing')
+        record['editable_project'] = str(editable)
         record['timeline_fingerprint'] = timeline_fingerprint(timeline)
         record['duration_frames'] = plan['duration_frames']
         record['status'] = 'built_not_reviewed'
@@ -188,9 +219,20 @@ def apply(path, project_name, timeline_name, output, save_current=False):
     return {'operation': str(journal), **record}
 
 
-def render(operation, output, preset, start=False):
+def render(operation, output, preset, start=False, start_frame=0, end_frame=None, width=None, height=None):
     record = json.loads(Path(operation).read_text(encoding='utf-8'))
     require(record.get('kind') == 'apply' and record.get('status') == 'built_not_reviewed', 'Use a completed apply record')
+    from .plan import bounds, integer
+    start_frame, end_frame = bounds([start_frame, record['duration_frames'] if end_frame is None else end_frame], 'render range')
+    require(end_frame <= record['duration_frames'], 'Render range exceeds the work timeline')
+    if (width is None) != (height is None):
+        raise ValueError('Provide both width and height, or neither')
+    if width is not None:
+        integer(width, 'render width', 1)
+        integer(height, 'render height', 1)
+    plan_data = json.loads((Path(operation).resolve().parent/'plan.json').read_text(encoding='utf-8'))
+    if width is None:
+        width, height = plan_data['timeline']['width'], plan_data['timeline']['height']
     _, _, project = target(record['project'], record['project_id'])
     timeline = next((project.GetTimelineByIndex(i) for i in range(1, project.GetTimelineCount()+1)
                      if project.GetTimelineByIndex(i).GetUniqueId() == record['timeline_id']), None)
@@ -205,6 +247,7 @@ def render(operation, output, preset, start=False):
     journal = out/'render.json'
     result = {'kind': 'render', 'project': record['project'], 'project_id': record['project_id'],
               'timeline_id': record['timeline_id'], 'preset': preset, 'status': 'preparing',
+              'timeline_range': [start_frame, end_frame], 'requested_size': [width, height],
               'output_directory': str(out), 'operation': str(Path(operation).resolve())}
     previous = project.GetCurrentTimeline()
     save_record(journal, result)
@@ -213,10 +256,15 @@ def render(operation, output, preset, start=False):
         require(project.LoadRenderPreset(preset), 'Cannot load render preset')
         require(project.SetCurrentRenderMode(1), 'Cannot select single-clip render')
         # Use explicit inclusive render bounds. No quality/codec claims beyond the selected preset.
-        require(project.SetRenderSettings({'TargetDir': str(out), 'CustomName': 'preview',
-                    'MarkIn': timeline.GetStartFrame(),
-                    'MarkOut': timeline.GetStartFrame()+record['duration_frames']-1,
-                    'SelectAllFrames': False, 'ExportVideo': True}), 'Render settings rejected')
+        render_settings = {'TargetDir': str(out), 'CustomName': 'preview',
+                           'MarkIn': timeline.GetStartFrame()+start_frame,
+                           'MarkOut': timeline.GetStartFrame()+end_frame-1,
+                           'SelectAllFrames': False, 'ExportVideo': True,
+                           'ExportAudio': bool(plan_data.get('audio')),
+                           'FrameRate': round(float(Fraction(plan_data['timeline']['fps'])), 3)}
+        if width is not None:
+            render_settings.update(FormatWidth=width, FormatHeight=height)
+        require(project.SetRenderSettings(render_settings), 'Render settings rejected')
         job = require(project.AddRenderJob(), 'Cannot queue render')
         result.update(job_id=job, status='queued')
         save_record(journal, result)
@@ -241,3 +289,15 @@ def render_status(path):
     return {'job_id': record['job_id'], 'status': project.GetRenderJobStatus(record['job_id']),
             'output_directory': record['output_directory'],
             'scope': 'Render job status only; output files and perceptual quality are not verified'}
+
+
+def inspect_operation(path):
+    record = json.loads(Path(path).read_text(encoding='utf-8'))
+    require(record.get('kind') == 'apply' and record.get('timeline_id'), 'Record has no work timeline')
+    _, _, project = target(record['project'], record['project_id'], idle=False)
+    timeline = next((project.GetTimelineByIndex(i) for i in range(1, project.GetTimelineCount()+1)
+                     if project.GetTimelineByIndex(i).GetUniqueId() == record['timeline_id']), None)
+    return {'timeline_exists': timeline is not None,
+            'fingerprint_matches': bool(timeline and timeline_fingerprint(timeline) == record.get('timeline_fingerprint')),
+            'recorded_status': record['status'], 'editable_project': record.get('editable_project'),
+            'scope': 'Read-only live structure/properties comparison, not a full Fusion/color or perceptual audit'}

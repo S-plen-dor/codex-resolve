@@ -8,9 +8,9 @@
 
 反馈修改：plan-locate PLAN --start FRAME [--end FRAME] 返回时间线区间中的视频/音频 ID；语义指代仍由你结合预览解释。将用户原话、解释、基础 SHA-256、preserve_ids 和 update/add/remove 操作写成 changes，再用 plan-revise PLAN --changes FILE --out NEW_PLAN --revision NEW_REVISION --workspace DIRECTORY。set 对字段整体替换，不自动 ripple。之后比较计划，再构建新工作版本。详见仓库 docs/PROJECT_CONTINUITY.md。
 
-创作闭环入口：observe、plan-validate、plan-diff、plan-apply、render-submit、render-status。具体参数先看子命令 help；仓库 docs/CREATIVE_LOOP.md 包含协议及副作用说明。observe 生成真实图像/索引及可选短片，必须通过当前会话观看工具实际打开后才能描述观察结论。无法看视频或听音时明确边界。
+创作入口还包括produce、render-collect、review-record、resolve-capabilities、operation-check和skill-copy；完整计划约定按需读plan-contract.md。具体参数先看子命令 help；仓库 docs/CREATIVE_LOOP.md 包含协议及副作用说明。observe 生成真实图像/索引及可选短片，必须通过当前会话观看工具实际打开后才能描述观察结论。无法看视频或听音时明确边界。
 
-plan-apply 要求 --project、唯一 --timeline、新 --out 和 --save-current；会保存当前工程并导出DRP备份，再构建原速同帧率多轨时间线。properties 仅支持部分静态构图，未支持的效果改用其他适配器，不静默降级。render-submit 从 operation.json 定位目标，--preset 指向已有预设，默认排队，--start 显式启动。render-status 只查一次任务状态；队列完成后仍需按用户约定观察产物。
+plan-apply 要求 --project、唯一 --timeline、新 --out 和 --save-current；会保存当前工程并导出DRP备份，再构建同帧率多轨时间线。已接入camera/opacity/有限慢放及独立音频增益/淡化；未支持的效果改用其他适配器，不静默降级。render-submit 从 operation.json 定位目标，--preset 指向已有预设，默认排队，--start 显式启动。render-status 只查一次任务状态；队列完成后用render-collect关联实际视频，可选按任务范围做QC/观察，再通过review-record保存真实范围内的审片声明。不要把分段预览认可成整片通过。
 
 `cr-media --help`：doctor、cache-check、probe、frames、paired-frames、cover、sync、features、qc、audio-check、asr、lyrics-align、lyrics-export、retime-plan、retime-check、cache-match。需要时读取子命令 help，使用明确的新输出路径。ASR 可选，模型仅本地读取。
 

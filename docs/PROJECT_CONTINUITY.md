@@ -6,7 +6,7 @@
 
 先使用 init 创建项目。在需要自动跟踪的命令末尾添加 `--workspace PROJECT_DIRECTORY`。这是本机项目记录目录，与 plan-apply 的 `--project RESOLVE_PROJECT_NAME` 不同。未提供 --workspace 时保留原行为，不自动选择或写入任何项目。
 
-支持跟踪 observe、plan-revise、plan-apply、render-submit、render-status。使用 `plan-register PLAN --workspace PROJECT_DIRECTORY` 显式选中现有计划；plan-validate、plan-diff 和 plan-locate 保持只读，不改变当前版本。
+支持跟踪observe、plan-revise、plan-apply、render-submit、render-status、produce、render-collect、review-record。使用 `plan-register PLAN --workspace PROJECT_DIRECTORY` 显式选中现有计划；plan-validate、plan-diff 和 plan-locate 保持只读，不改变当前版本。
 
 ```powershell
 codex-resolve observe media/source.mp4 --out analysis/overview --workspace .
@@ -20,7 +20,7 @@ codex-resolve render-status renders/preview-v001/render.json --workspace .
 
 状态包含最新观察包、当前计划/指纹/版本、工作工程/时间线/操作记录、当前渲染记录、最新反馈、错误与下一步。失败时保留之前有效版本，并附失败记录位置。选中新计划后将原操作/渲染放到 previous_* 字段，清空当前指针并标记待构建；历史文件不删除。重新登记相同内容的计划不会无故作废已有关联。
 
-旧操作的预览可以被提交，但不会冒充当前计划预览。渲染查询仅当记录是当前任务时推进阶段；Complete 标记为 render_complete_not_reviewed，不代表成片规格、感知或用户验收。当前版本没有将成片自动确认成已审片的命令。
+旧操作的预览可以被提交，但不会冒充当前计划预览。渲染查询仅当记录是当前任务时推进阶段；Complete 标记为 render_complete_not_reviewed，不代表成片规格、感知或用户验收。当前可通过render-collect关联真实产物、review-record记录用户/agent的审片声明，但不自动认证实际感知过程。
 
 ## 新聊天继续
 

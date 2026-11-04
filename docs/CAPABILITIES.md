@@ -18,11 +18,14 @@
 | resolve-status | 新增 | 只读连接，无应用启动或写入 |
 | observe | 新增，未运行验证 | 帧索引抽样、名义时间索引、可选60秒以内短片；不做语义识别 |
 | plan-validate / plan-diff | 新增，未运行验证 | 结构、路径、可选哈希与 ID 差异；不是执行或审美验收 |
-| plan-apply | 新增，未运行验证 | 原速同帧率视频源、多轨、静态构图；新时间线、显式保存和DRP备份 |
-| render-submit / render-status | 新增，未运行验证 | 已有预设、单文件排队/启动、状态查询；不验证实际输出 |
+| plan-apply | 新增，未运行验证 | 同帧率规则视频、多轨、静态构图、camera/opacity/有限慢放、独立音频增益/淡化；新时间线与前后DRP |
+| render-submit / render-status | 新增，未运行验证 | 已有预设、显式尺寸/帧率/声音开关、分段或全片、排队/启动与状态查询 |
 | --workspace / plan-register / resume | 新增，未运行验证 | 可选作用域、自动事件/状态/交接、只读续接；不恢复 Resolve |
 | plan-locate / plan-revise | 新增，未运行验证 | 时间范围查 ID、匹配基础哈希的新计划、保护指定片段；自然语言由 Codex 解释 |
-| 原地增量修改 / 自动审片循环 | 未实现 | 目前通过新计划和新工作时间线迭代 |
+| produce | 新增，未运行验证 | 可选反馈修订→新工作版本→预览排队/启动；异步，不自动观看 |
+| render-collect / review-record | 新增，未运行验证 | 实际视频/hash、可选QC/观察包、保存审片声明；声明不是独立感知证明 |
+| skill-copy / resolve-capabilities / operation-check | 新增，未运行验证 | 显式目录复制、只读方法/预设发现、live结构/属性对照；不是兼容性或完整图审计 |
+| 原地增量修改 / 自动恢复 | 未实现 | 当前新计划与新时间线迭代；审片判断由Codex/用户负责 |
 | 自动追踪、人物分割、跨场次匹配 | 未迁入 | 不因历史项目有脚本就声称通用支持 |
 | Huashu Motion / Design | 协议与指导 | 用户自选、自行安装；未做本仓库联调 |
 
@@ -30,4 +33,4 @@
 
 查函数时按需阅读对应模块或运行 `cr-media --help` / `cr-media COMMAND --help`。本次未执行 help、doctor、安装或集成测试。
 
-新命令的副作用、协议与限制见 [CREATIVE_LOOP.md](CREATIVE_LOOP.md)。plan-apply 会保存当前工程、导出备份、导入素材和新建工作时间线；render-submit 会改变交付设置并排队，只有 --start 才启动渲染。普通版、跨系统、异帧率、独立音频源、动态效果及人物光流不在新执行器支持范围内。这些是当前适配器边界，不是创作规则。
+新命令的副作用、协议与限制见 [END_TO_END.md](END_TO_END.md)。plan-apply/produce 会保存当前工程、导出前后DRP、生成媒体和Fusion合成、新建工作时间线；渲染提交改变交付设置并排队，只有 --start 才启动。普通版、跨系统、异帧率、VFR、自动抠像、任意OFX、任意速度曲线、自动调色和真人光流画质仍未覆盖或未验证。这些是当前适配器边界，不是创作规则。

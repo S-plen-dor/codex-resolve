@@ -24,7 +24,7 @@ ASR 单独安装 `python -m pip install -e ".[asr]"`，将 CODEX_RESOLVE_ASR_MOD
 
 ## Codex Skill
 
-将仓库 skills/resolve-edit 整个文件夹复制到当前 Codex 支持的 Skills 位置，而非只复制 SKILL.md。用当前官方安装约定确认位置；先检查是否已有同名 Skill，不覆盖用户修改。
+使用codex-resolve skill-copy DESTINATION，或将仓库skills/resolve-edit整个文件夹复制到当前Codex支持的Skills位置。用当前官方安装约定确认位置；先检查是否已有同名 Skill，不覆盖用户修改。
 
 Skill 自带工作流参考，但 Python 包需另外安装。用户没有激活虚拟环境时，Codex 应使用虚拟环境中命令的完整路径。此处未自动安装 Skill 或改变任何用户配置。
 
@@ -36,4 +36,4 @@ Skill 自带工作流参考，但 Python 包需另外安装。用户没有激活
 - 原生扩展无法导入：确认文件工具使用 Python 3.12 独立环境。
 - 无模型：仅启用基础工具，或显式配置本地模型。
 
-发布包、跨系统安装和精确依赖锁定仍在路线图内。
+可使用scripts/bootstrap.ps1安装开发包，并用skill-copy显式复制Skill；wheel配置已包含Skill参考，但打包和安装均未运行验证。跨系统和精确依赖锁定仍待完善。

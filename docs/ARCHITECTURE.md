@@ -14,7 +14,7 @@ Codex 对话是入口。工作流服务已安装 Codex 与 Resolve 的用户，�
 
 ## 计划约定（草案）
 
-examples/edit-plan.example.json 是需替换真实素材的协议示例，已有有限的原速执行器。每个镜头有稳定 id、素材 id、源区间、时间线区间、剪辑理由及效果参数。project_root 相对计划文件目录解析，素材路径相对项目根目录。资产 id 不随重命名自动改变。当前结构检查支持区间、同轨重叠、路径和可选内容哈希；执行前另检查实际时基与规则时间戳。
+examples/edit-plan.example.json 是需替换真实素材的协议示例，已有同帧率多轨与组合效果执行器。每个镜头有稳定 id、素材 id、源区间、时间线区间、剪辑理由及效果参数。project_root 相对计划文件目录解析，素材路径相对项目根目录。资产 id 不随重命名自动改变。当前结构检查支持区间、同轨重叠、路径和可选内容哈希；执行前另检查实际时基与规则时间戳。
 
 帧索引零起点、区间 [start,end)，帧率用 numerator/denominator 字符串。必须区分素材、输出时间线、镜头局部及 Fusion 时间。变速保存显式源映射，主音轨策略按项目确定。同步多机位共用同步轴；不同演出场次需分段匹配，不能套全片偏移。
 
@@ -40,6 +40,6 @@ Python CLI 与官方脚本桥优先；MCP 是可选适配器，不作为首版�
 
 ## 当前闭环实现（未运行验证）
 
-observe 组织视觉证据；plan-validate / plan-diff 支持计划与版本比较；plan-apply 在显式目标工程中保存与备份后创建新时间线；render-submit / render-status 提供预览任务交接。Codex 自身负责观察、创作与反馈定位，命令不自动产生审美判断。命令、范围和副作用见 [CREATIVE_LOOP.md](CREATIVE_LOOP.md)。
+observe 组织视觉证据；plan-validate / plan-diff 支持计划与版本比较；plan-apply在显式目标工程中保存与备份后创建新时间线，接入有限camera/opacity/慢放与独立音频；render-submit / render-status 提供预览任务交接。Codex 自身负责观察、创作与反馈定位，命令不自动产生审美判断。命令、范围和副作用见 [CREATIVE_LOOP.md](CREATIVE_LOOP.md)。
 
 可选 --workspace 将 CLI 结果与项目关联，合作式锁防止同时推进；事件含 state_after，state.json 原子替换，HANDOFF.auto.md 自动生成。plan-register 选择当前计划，resume 只读续接并检测缺失文件/计划外部改动。plan-locate 辅助时间区间定位，plan-revise 依据基础哈希和可选镜头保护生成新计划。自然语言解释仍属于 Codex，当前没有自动事件重放或原地增量修改。

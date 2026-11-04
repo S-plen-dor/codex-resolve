@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "revision": "v001",
+  "project_root": "..",
+  "timeline": {"fps": "30000/1001", "width": 1080, "height": 1920},
+  "sources": [
+    {"id": "camera-a", "path": "media/source.mp4", "fps": "30000/1001"},
+    {"id": "music", "path": "media/music.wav", "kind": "audio"}
+  ],
+  "shots": [
+    {"id": "shot-001", "source_id": "camera-a", "source_range": [0, 180], "timeline_range": [0, 180], "track": 1,
+     "effects": [{"type": "camera", "zoom": [[0, 1.0], [179, 1.08]]}], "reason": "Example only; choose motion based on actual material"},
+    {"id": "shot-002", "source_id": "camera-a", "source_range": [360, 540], "timeline_range": [180, 360], "track": 1,
+     "retime": {"speed": 0.8, "method": "flow"},
+     "effects": [{"type": "opacity", "keys": [[0, 1.0], [150, 1.0], [179, 0.0]]}], "reason": "Example slow emphasis and fade; not a global editing rule"}
+  ],
+  "audio": [{"id": "audio-001", "source_id": "music", "source_range": [0, 360], "timeline_range": [0, 360],
+             "track": 1, "layout": "stereo", "gain_db": -2, "fade_out_frames": 30}]
+}

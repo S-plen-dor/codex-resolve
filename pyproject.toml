@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "codex-resolve"
-version = "0.1.0.dev2"
+version = "0.1.0.dev3"
 description = "Natural-language video editing with Codex and DaVinci Resolve"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
@@ -20,3 +20,7 @@ cr-media = "focus_mv.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.data-files]
+"share/codex-resolve/skills/resolve-edit" = ["skills/resolve-edit/SKILL.md"]
+"share/codex-resolve/skills/resolve-edit/references" = ["skills/resolve-edit/references/workflow.md", "skills/resolve-edit/references/plan-contract.md"]

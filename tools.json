@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.0.dev2",
+  "version": "0.1.0.dev3",
   "validation": "not_run",
   "media_entry": "cr-media",
   "workflow_entry": "codex-resolve",
@@ -209,13 +209,13 @@
       "id": "plan.apply",
       "command": "plan-apply PLAN --project NAME --timeline NEW_NAME --out NEW_DIR --save-current [--workspace DIRECTORY]",
       "entry": "codex-resolve",
-      "purpose": "Save/backup current project and build a new native-speed timeline",
+      "purpose": "Save/backup, build multi-track edits, compose camera/opacity/slow effects, prepare independent audio, export editable DRP",
       "status": "implemented_unverified",
       "detail": "docs/CREATIVE_LOOP.md"
     },
     {
       "id": "render.submit",
-      "command": "render-submit OPERATION --out NEW_DIR --preset NAME [--start] [--workspace DIRECTORY]",
+      "command": "render-submit OPERATION --out NEW_DIR --preset NAME [--start] [--workspace DIRECTORY] [--start-frame N --end-frame N --width W --height H]",
       "entry": "codex-resolve",
       "purpose": "Queue or explicitly start one preset-based preview",
       "status": "implemented_unverified",
@@ -260,13 +260,63 @@
       "purpose": "Apply exact-base agent-authored clip changes while preserving old plans",
       "status": "implemented_unverified",
       "detail": "docs/PROJECT_CONTINUITY.md"
+    },
+    {
+      "id": "workflow.produce",
+      "command": "produce PLAN --project NAME --timeline NEW_NAME --out NEW_DIR --preset NAME --save-current [--start --changes FILE --revision LABEL --workspace DIRECTORY]",
+      "entry": "codex-resolve",
+      "purpose": "Optionally revise feedback, build a new version and submit its preview",
+      "status": "implemented_unverified",
+      "detail": "docs/END_TO_END.md"
+    },
+    {
+      "id": "render.collect",
+      "command": "render-collect RECORD --out NEW_DIR [--file VIDEO --qc --observe --workspace DIRECTORY]",
+      "entry": "codex-resolve",
+      "purpose": "Associate actual completed video, content hash and optional technical QC/observations",
+      "status": "implemented_unverified",
+      "detail": "docs/END_TO_END.md"
+    },
+    {
+      "id": "review.record",
+      "command": "review-record COLLECTION --input DECLARATION --out NEW_JSON [--workspace DIRECTORY]",
+      "entry": "codex-resolve",
+      "purpose": "Record agent/user review declaration tied to the actual video and scope",
+      "status": "implemented_unverified",
+      "detail": "docs/END_TO_END.md"
+    },
+    {
+      "id": "resolve.capabilities",
+      "command": "resolve-capabilities",
+      "entry": "codex-resolve",
+      "purpose": "Read method existence, version, formats and presets",
+      "status": "implemented_unverified",
+      "detail": "docs/END_TO_END.md"
+    },
+    {
+      "id": "operation.check",
+      "command": "operation-check OPERATION",
+      "entry": "codex-resolve",
+      "purpose": "Compare live work timeline structure/properties with saved identity",
+      "status": "implemented_unverified",
+      "detail": "docs/END_TO_END.md"
+    },
+    {
+      "id": "skill.copy",
+      "command": "skill-copy DESTINATION",
+      "entry": "codex-resolve",
+      "purpose": "Copy bundled Skill into an explicitly chosen new directory",
+      "status": "implemented_unverified",
+      "detail": "docs/END_TO_END.md"
     }
   ],
   "planned": [
     "edit.incremental",
     "execution.resume",
-    "review.automatic",
     "source.mixed_rates",
-    "effects.plan_adapter"
+    "source.vfr",
+    "effects.arbitrary",
+    "color.automatic",
+    "mask.tracking"
   ]
 }
