@@ -1,6 +1,6 @@
 # Plan and production contract
 
-The user does not write these files. Maintain them from current intent and real observations. All shipped adapters are unverified development code; examples are not aesthetic rules.
+This contract applies only when choosing this package's plan-based executor. Direct API calls, other tools and project-specific scripts do not need to follow this file format or command sequence. When used, Codex can maintain the files for the user. All shipped adapters are unverified development code; examples are optional.
 
 ## Plan
 

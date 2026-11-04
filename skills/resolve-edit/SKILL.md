@@ -1,27 +1,20 @@
 ---
 name: resolve-edit
-description: Use natural-language requests to analyze video, plan and revise edits, and operate DaVinci Resolve 21 with an installed Codex Resolve toolkit. Supports single-camera, multicamera and music-driven edits; preserves editable projects and versioned decisions.
+description: Help Codex edit video in DaVinci Resolve using natural-language intent, optional reusable tools, and editable projects.
 ---
 
 # Resolve Edit
 
-用户通过与 Codex 对话完成剪辑。技术计划由你维护，不要求用户填写 JSON 或逐镜头决定。先定位已安装的 codex-resolve / cr-media 命令或仓库虚拟环境；缺失时说明需要安装，不默认依赖某个 MCP 或个人目录。
+由当前用户的意图和实际素材决定剪辑。自主选择镜头、节奏、声音、效果和实现方式；未指定的创作细节可自行判断。这里不规定风格、工作阶段、提案数量或审批步骤。
 
-首先读取 [workflow.md](references/workflow.md)，编排计划/制作时再读 [plan-contract.md](references/plan-contract.md)。当前是未运行验证的开发预览：已编写观察、状态、反馈修订、组合运镜/透明度/有限慢放、独立音频、版本构建、分段预览、产物收集和审片声明的接口。复杂效果和原地增量修改未实现。使用真实可用接口，不编造命令与成功结果。
+工具按需使用：可以调用本工具包、官方 Resolve/Fusion API、可用的连接工具、FFmpeg、其他 Skills，或编写项目专用脚本。现有命令和示例不是创作边界；不必为了使用本 Skill 将所有任务转换为计划 JSON 或执行完整工具链。
 
-- 创作标准来自当前用户与项目。风格、节奏、镜头密度、卡点、动作完整性、声音重组、变速、写实或风格化均可选择，不套用原作者或其他项目的审美。未指定时结合素材自主提出合适做法，将推断记为可修改的项目决定。
-- 案例、预设和工作阶段是可选参考，不要求所有视频都卡点、加特效、保留整段动作或经过固定提案步骤。用户可直接指定、授权自主创作或边看边改。
-- 工具清单不构成创作白名单。某个 helper 的范围限制只约束该工具；需要时使用其他可用接口或项目专用实现，并说明未经验证的范围，不把“暂未实现”描述成“不允许这样剪”。
-- 先用 resume 读取当前项目上下文，再读 HANDOFF.auto.md、HANDOFF.md 和 creative-brief.md；按需看分析与计划，不扫描历史目录或模型库。resume 不代表已核对 live Resolve 状态。
-- 对项目内观察、计划修订、执行和渲染使用 --workspace，让工具维护状态和自动交接；用 plan-register 显式选中已有计划。不要覆盖自动交接文件，创作说明与已认可决定写在人工交接/创作意图中。
-- 收到修改意见后结合实际预览定位镜头，用 plan-locate 辅助找 ID，由你解释语义并生成 changes；用 plan-revise 基于精确哈希输出新版本，可用 preserve_ids 保护已认可镜头。比较差异再按授权构建新时间线，不把计划修订说成已经改好工程。
-- 用户授权剪辑后自主完成素材分析、镜头安排、普通构图和效果取舍，先给可观看结果再迭代。若用户只要求讨论，保持只读。
-- 需求不明时先完成独立分析，只询问实质影响结果且无法推断的信息。无法唯一定位修改对象时确认指代。
-- 保护原素材、已认可版本和用户正在编辑的工程。修改前核对目标工程与工作时间线，保留恢复依据。项目记录检查点不等于工程备份。
-- 内部帧零起点、区间 [start,end)、有理帧率；核对实际素材时基、入轨长度和源绑定。
-- 不将频谱峰当确认重拍、相关偏移零当口型正确、解码通过当审片通过。视觉与技术检查分开报告。
-- 主音轨策略按项目确定；需要连续原声时不得因切镜或慢放切碎或重复叠加。检查声道与增益。
-- 用户要求跳过检查时记录 skipped，不因此虚构通过；软件或接口不支持时说明实际限制。
-- Motion、Design 为可选外部能力，按需调用；其交互流程只在选用该能力时适用，不升级成核心剪辑的统一审美或提案要求。尊重当前用户指示，存在适用流程冲突时说明并选择可行方案。缺失时继续可用流程，调整视觉方案需说明。
+需要查工具时看 [调用参考](references/workflow.md)；选择使用本包的计划执行器时，再按需查 [计划接口](references/plan-contract.md)。没有强制阅读顺序；已有上下文足够时直接工作。
 
-每次阶段结束更新当前计划、工程/时间线、预览位置、已接受决定、问题和下一步。交付视频、可编辑工程位置与真实检查范围。
+执行时保留这些约定：
+
+- 操作明确的目标工程，保护原素材和已认可版本，保留适合本次修改的恢复依据。
+- 本包内部帧区间为零起点 [start,end)，帧率为有理数；对接其他接口时转换其时间约定。
+- 如实区分创作意图、实际执行和观察范围。本包是未运行验证的开发预览；某个工具未实现，不代表这种剪法不允许。
+
+需要跨对话续接时，可用 --workspace/resume 自动记录，也可采用适合当前项目的交接方式。交付说明结果位置及实际限制；普通剪辑决定不逐项询问用户。
