@@ -61,4 +61,4 @@ codex-resolve render-status renders/preview-v001/render.json
 
 审片同时比较创作意图与实际结果：可以刻意留长镜头，也可以碎切、跳切、黑帧和失真。技术检查提示与创作判断分别记录。用户要求跳过检查时保存 skipped。没有人工反馈时，只根据实际可观察的问题迭代，不能声称模型已完整连续审片。
 
-更新 state.json 和 HANDOFF.md 中当前计划、operation/render 记录、反馈、未决问题及下一步。本轮命令不会自动更新这些 agent 维护的状态，也不自动解析反馈或生成创意计划。
+传入 --workspace 后，观察、计划选择/修订、构建与渲染会自动更新 state.json、history/ 和 HANDOFF.auto.md；未传入时仍独立运行。HANDOFF.md 中的叙事交接与创作决定由 agent 维护。工具不自动解析反馈或生成创意计划；详见 [项目续接](PROJECT_CONTINUITY.md)。

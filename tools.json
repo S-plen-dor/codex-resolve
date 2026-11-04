@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "version": "0.1.0.dev1",
+  "version": "0.1.0.dev2",
   "validation": "not_run",
   "media_entry": "cr-media",
   "workflow_entry": "codex-resolve",
@@ -183,7 +183,7 @@
     },
     {
       "id": "observation.pack",
-      "command": "observe SOURCE --out NEW_DIR [--start FRAME --end FRAME --interval SECONDS --clip]",
+      "command": "observe SOURCE --out NEW_DIR [--start FRAME --end FRAME --interval SECONDS --clip] [--workspace DIRECTORY]",
       "entry": "codex-resolve",
       "purpose": "Actual frame evidence and optional continuous candidate clip",
       "status": "implemented_unverified",
@@ -207,7 +207,7 @@
     },
     {
       "id": "plan.apply",
-      "command": "plan-apply PLAN --project NAME --timeline NEW_NAME --out NEW_DIR --save-current",
+      "command": "plan-apply PLAN --project NAME --timeline NEW_NAME --out NEW_DIR --save-current [--workspace DIRECTORY]",
       "entry": "codex-resolve",
       "purpose": "Save/backup current project and build a new native-speed timeline",
       "status": "implemented_unverified",
@@ -215,7 +215,7 @@
     },
     {
       "id": "render.submit",
-      "command": "render-submit OPERATION --out NEW_DIR --preset NAME [--start]",
+      "command": "render-submit OPERATION --out NEW_DIR --preset NAME [--start] [--workspace DIRECTORY]",
       "entry": "codex-resolve",
       "purpose": "Queue or explicitly start one preset-based preview",
       "status": "implemented_unverified",
@@ -223,11 +223,43 @@
     },
     {
       "id": "render.status",
-      "command": "render-status RECORD",
+      "command": "render-status RECORD [--workspace DIRECTORY]",
       "entry": "codex-resolve",
       "purpose": "Read recorded render job status without waiting",
       "status": "implemented_unverified",
       "detail": "docs/CREATIVE_LOOP.md"
+    },
+    {
+      "id": "project.resume",
+      "command": "resume DIRECTORY",
+      "entry": "codex-resolve",
+      "purpose": "Read state, missing artifact paths and external plan changes",
+      "status": "implemented_unverified",
+      "detail": "docs/PROJECT_CONTINUITY.md"
+    },
+    {
+      "id": "plan.register",
+      "command": "plan-register PLAN --workspace DIRECTORY",
+      "entry": "codex-resolve",
+      "purpose": "Select a current plan and update project history/state",
+      "status": "implemented_unverified",
+      "detail": "docs/PROJECT_CONTINUITY.md"
+    },
+    {
+      "id": "plan.locate",
+      "command": "plan-locate PLAN --start FRAME [--end FRAME]",
+      "entry": "codex-resolve",
+      "purpose": "Find stable clip IDs by timeline range",
+      "status": "implemented_unverified",
+      "detail": "docs/PROJECT_CONTINUITY.md"
+    },
+    {
+      "id": "plan.revise",
+      "command": "plan-revise PLAN --changes FILE --out NEW_PLAN --revision LABEL [--workspace DIRECTORY]",
+      "entry": "codex-resolve",
+      "purpose": "Apply exact-base agent-authored clip changes while preserving old plans",
+      "status": "implemented_unverified",
+      "detail": "docs/PROJECT_CONTINUITY.md"
     }
   ],
   "planned": [

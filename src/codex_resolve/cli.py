@@ -4,6 +4,49 @@ import sys
 from . import __version__
 
 
+def execute(args):
+    if args.command == "observe":
+        from .observe import observe
+        return observe(args.source, args.out, args.start, args.end, args.interval, args.width, args.clip)
+    if args.command in ("plan-validate", "plan-diff", "plan-register"):
+        from .plan import validate, compare, load_plan
+        if args.command == "plan-register":
+            plan = load_plan(args.plan)
+            return {'plan': plan['path'], 'plan_sha256': plan['sha256'],
+                    'revision': plan['data']['revision'], 'scope': 'Selected plan; not executed or reviewed'}
+        return validate(args.plan) if args.command == "plan-validate" else compare(args.before, args.after)
+    if args.command in ("plan-locate", "plan-revise"):
+        from .revision import locate, revise
+        if args.command == "plan-locate":
+            return locate(args.plan, args.start, args.end)
+        if args.workspace:
+            from .project import inspect
+            from .plan import load_plan
+            current = inspect(args.workspace)['state.json'].get('plan_sha256')
+            if current and current != load_plan(args.plan)['sha256']:
+                raise ValueError('Revision base is not the current workspace plan; select the intended base explicitly')
+        return revise(args.plan, args.changes, args.out, args.revision)
+    if args.command in ("plan-apply", "render-submit", "render-status"):
+        from .execution import apply, render, render_status
+        if args.command == "plan-apply":
+            return apply(args.plan, args.project, args.timeline, args.out, args.save_current)
+        if args.command == "render-submit":
+            return render(args.operation, args.out, args.preset, args.start)
+        return render_status(args.record)
+    if args.command == "resolve-status":
+        from .resolve import status
+        return status()
+    if args.command == "resume":
+        from .session import resume
+        return resume(args.directory)
+    from .project import initialize, inspect, checkpoint
+    if args.command == "init":
+        return initialize(args.directory, args.name)
+    if args.command == "checkpoint":
+        return checkpoint(args.directory, args.label)
+    return inspect(args.directory)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Codex Resolve project records and read-only connection")
     parser.add_argument("--version", action="version", version=__version__)
@@ -43,33 +86,26 @@ def main(argv=None):
     render.add_argument("--start", action="store_true")
     render_status = commands.add_parser("render-status", help="Read one recorded render job without waiting")
     render_status.add_argument("record")
+    register = commands.add_parser("plan-register", help="Select an existing plan in project state")
+    register.add_argument("plan")
+    register.add_argument("--workspace", required=True)
+    locate = commands.add_parser("plan-locate", help="Find clip IDs overlapping timeline frames")
+    locate.add_argument("plan")
+    locate.add_argument("--start", type=int, required=True)
+    locate.add_argument("--end", type=int)
+    revise = commands.add_parser("plan-revise", help="Apply agent-authored clip changes to a new plan version")
+    revise.add_argument("plan")
+    revise.add_argument("--changes", required=True)
+    revise.add_argument("--out", required=True)
+    revise.add_argument("--revision", required=True)
+    resume = commands.add_parser("resume", help="Read project context and missing artifact paths")
+    resume.add_argument("directory")
+    for command in (observe, apply, render, render_status, revise):
+        command.add_argument("--workspace", help="Initialized project directory; track history and update handoff")
     args = parser.parse_args(argv)
     try:
-        if args.command == "observe":
-            from .observe import observe
-            result = observe(args.source, args.out, args.start, args.end, args.interval, args.width, args.clip)
-        elif args.command in ("plan-validate", "plan-diff"):
-            from .plan import validate, compare
-            result = validate(args.plan) if args.command == "plan-validate" else compare(args.before, args.after)
-        elif args.command in ("plan-apply", "render-submit", "render-status"):
-            from .execution import apply, render, render_status
-            if args.command == "plan-apply":
-                result = apply(args.plan, args.project, args.timeline, args.out, args.save_current)
-            elif args.command == "render-submit":
-                result = render(args.operation, args.out, args.preset, args.start)
-            else:
-                result = render_status(args.record)
-        elif args.command == "resolve-status":
-            from .resolve import status
-            result = status()
-        else:
-            from .project import initialize, inspect, checkpoint
-            if args.command == "init":
-                result = initialize(args.directory, args.name)
-            elif args.command == "checkpoint":
-                result = checkpoint(args.directory, args.label)
-            else:
-                result = inspect(args.directory)
+        from .session import run
+        result = run(args, lambda: execute(args))
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
     except Exception as exc:

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "base_sha256": "REPLACE_WITH_EXACT_BASE_PLAN_SHA256",
+  "feedback": "最后那个表情放大一点，声音保持原样。",
+  "interpretation": "Example only: after checking the preview, target shot-001. Do not use this ID without locating the actual clip.",
+  "preserve_ids": ["audio-001"],
+  "operations": [
+    {
+      "group": "shots",
+      "id": "shot-001",
+      "action": "update",
+      "set": {
+        "properties": {"ZoomX": 1.1, "ZoomY": 1.1},
+        "reason": "Example: emphasize the expression according to current feedback"
+      }
+    }
+  ]
+}

@@ -17,7 +17,7 @@ def initialize(root, name):
     if not name.strip():
         raise ValueError("Project name cannot be empty")
     root.mkdir(parents=True)
-    for child in ("analysis", "plans", "assets", "renders", "versions"):
+    for child in ("analysis", "plans", "assets", "renders", "versions", "history"):
         (root / child).mkdir()
     record = {"schema_version": 1, "name": name, "sources": [],
               "output": {"width": None, "height": None, "fps": None},
@@ -25,16 +25,19 @@ def initialize(root, name):
               "resolve": {"project_name": None, "timeline_name": None}}
     write_new(root / "project.json", record)
     write_new(root / "state.json", {"schema_version": 1, "stage": "intake",
-              "current_plan": None, "current_render": None,
+              "current_plan": None, "current_operation": None, "current_render": None,
+              "current_preview_matches_plan": False, "plan_needs_build": True,
               "accepted_decisions": [], "pending_questions": [], "next_action": "Inspect supplied media"})
     (root / "HANDOFF.md").write_text(
-        "# Project handoff\n\nRead project.json and state.json first.\n"
+        "# Project handoff\n\nRead HANDOFF.auto.md, project.json and state.json first.\n"
         "Record the latest user request, accepted decisions, current timeline, "
         "preview path, unresolved issues and next action here.\n", encoding="utf-8")
     (root / "creative-brief.md").write_text(
         "# Creative brief\n\n## User intent\n\n## References and their relevance\n\n"
         "## Current creative decisions (revisable)\n\n## Open creative questions\n\n"
         "No global house style. Record only this project's intent and decisions.\n", encoding="utf-8")
+    from .session import handoff
+    handoff(root, inspect(root)['state.json'])
     return {"project_root": str(root), "created": True}
 
 
@@ -51,7 +54,7 @@ def checkpoint(root, label):
     target = root / "versions" / stamp
     target.mkdir()
     # Record text history only: this does not back up the Resolve database or media.
-    for name in ("project.json", "state.json", "HANDOFF.md"):
+    for name in ("project.json", "state.json", "HANDOFF.md", "HANDOFF.auto.md", "creative-brief.md"):
         path = root / name
         if path.is_file():
             (target / name).write_bytes(path.read_bytes())

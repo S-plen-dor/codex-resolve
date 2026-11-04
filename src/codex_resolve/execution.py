@@ -100,6 +100,7 @@ def apply(path, project_name, timeline_name, output, save_current=False):
     record = {'schema_version': 1, 'kind': 'apply', 'status': 'started',
               'project': project_name, 'project_id': project.GetUniqueId(),
               'timeline': timeline_name, 'plan_sha256': plan['sha256'],
+              'revision': plan['data']['revision'],
               'original_plan': plan['path'], 'project_root': plan['root'], 'clips': []}
     write_new(out/'plan.json', plan['data'])
     save_record(journal, record)

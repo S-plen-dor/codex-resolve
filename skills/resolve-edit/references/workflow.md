@@ -4,6 +4,10 @@
 
 `codex-resolve --help`：init、project-status、checkpoint、resolve-status。
 
+项目续接：resume DIRECTORY；plan-register PLAN --workspace DIRECTORY。观察、修订、构建和渲染命令支持 --workspace，自动维护 state.json、history/ 与 HANDOFF.auto.md。先读自动交接再读人工 HANDOFF.md 与创作意图；不要以记录代替 live 工程检查。未提供 workspace 时不自动选项目或更新状态。
+
+反馈修改：plan-locate PLAN --start FRAME [--end FRAME] 返回时间线区间中的视频/音频 ID；语义指代仍由你结合预览解释。将用户原话、解释、基础 SHA-256、preserve_ids 和 update/add/remove 操作写成 changes，再用 plan-revise PLAN --changes FILE --out NEW_PLAN --revision NEW_REVISION --workspace DIRECTORY。set 对字段整体替换，不自动 ripple。之后比较计划，再构建新工作版本。详见仓库 docs/PROJECT_CONTINUITY.md。
+
 创作闭环入口：observe、plan-validate、plan-diff、plan-apply、render-submit、render-status。具体参数先看子命令 help；仓库 docs/CREATIVE_LOOP.md 包含协议及副作用说明。observe 生成真实图像/索引及可选短片，必须通过当前会话观看工具实际打开后才能描述观察结论。无法看视频或听音时明确边界。
 
 plan-apply 要求 --project、唯一 --timeline、新 --out 和 --save-current；会保存当前工程并导出DRP备份，再构建原速同帧率多轨时间线。properties 仅支持部分静态构图，未支持的效果改用其他适配器，不静默降级。render-submit 从 operation.json 定位目标，--preset 指向已有预设，默认排队，--start 显式启动。render-status 只查一次任务状态；队列完成后仍需按用户约定观察产物。
@@ -28,7 +32,7 @@ Fusion helper 位于 focus_mv.fusion；慢放应用位于 focus_mv.retime。它�
 
 project.json 保存项目事实；state.json 保存当前进展；plans/ 保存计划版本。路径相对项目目录，素材身份与内容指纹另存分析记录。状态由 agent 维护；当前工具只创建与查看记录、保存记录检查点。
 
-每次完成一次修改，HANDOFF.md 写入：最新用户请求、已接受决定、当前计划、当前工程/时间线、预览路径、检查范围、未解决问题、下一步。新聊天读这些入口后继续，不重新扫描全部素材。
+每次完成一次修改，HANDOFF.md 写入用户原话、已接受决定、检查范围和未解决问题；--workspace 自动交接保存计划、操作/渲染指针与工具建议的下一步。新聊天用 resume 读取上下文，不重新扫描全部素材。render_complete_not_reviewed 不等于用户认可，计划一旦变化旧预览不再代表当前版本。
 
 ## 已知易错点
 
